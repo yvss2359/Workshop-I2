@@ -1,4 +1,4 @@
-# Workshop-I2
+# Workshop-I2-2024 : 
 Assainir les reseau socieaux
 
 # Projet :
@@ -15,7 +15,7 @@ Twistos
 - executer le fichier python pour activer le serveur
 - ouvrir le connexion.html
 
-# Installations ;
+# Installations :
 - pip install openai
 - pip install flask
 - pip install pandas
