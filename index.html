@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Twistos</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  </head>
+  <body>
+    <!-- sidebar starts -->
+    <div class="sidebar">
+        <img src=images/DALL_E-2024-10-15-11.08-removebg-preview.png alt="Twitter Logo" class="sidebar__twitterLogo" id="logo"/>
+      <div class="sidebarOption active">
+        <span class="material-icons"> home </span>
+        <h2>Home</h2>
+      </div>
+
+      <div class="sidebarOption">
+        <span class="material-icons"> search </span>
+        <h2>Explore</h2>
+      </div>
+
+      <div class="sidebarOption">
+        <span class="material-icons"> notifications_none </span>
+        <h2>Notifications</h2>
+      </div>
+
+      <div class="sidebarOption">
+        <span class="material-icons"> mail_outline </span>
+        <h2>Messages</h2>
+      </div>
+
+      <div class="sidebarOption">
+        <span class="material-icons"> bookmark_border </span>
+        <h2>Bookmarks</h2>
+      </div>
+
+      <div class="sidebarOption">
+        <span class="material-icons"> list_alt </span>
+        <h2>Lists</h2>
+      </div>
+
+      <div class="sidebarOption">
+        <span class="material-icons"> perm_identity </span>
+        <h2>Profile</h2>
+      </div>
+
+      <div class="sidebarOption">
+        <span class="material-icons"> more_horiz </span>
+        <h2>More</h2>
+      </div>
+
+      <div id="count" class="countdown">
+        <div class="circle">
+          <svg>
+            <circle cx="50%" cy="50%" r="45%"></circle>
+            <circle cx="50%" cy="50%" r="45%" id="progress"></circle>
+          </svg>
+          <div class="time" id="time">00:00</div>
+        </div>
+      </div>
+
+      <script>
+        // je récupère la valeur du temps pour totaltime sous cette forme : index.html?valeur=" + valeurRange, comment faire pour récuperer la valeur de valeurRange ?*
+        const urlParams = new URLSearchParams(window.location.search);
+        let choix = urlParams.get('valeur');
+        choix = choix * 60; // Convertir les secondes en minutes
+        const totalTime = choix; // Temps en secondes
+        let timeLeft = totalTime;
+
+        const timeDisplay = document.getElementById('time');
+        const progressCircle = document.getElementById('progress');
+        const circumference = 2 * Math.PI * 90; // 90 = r * 2 (45% du diamètre)
+        progressCircle.style.strokeDasharray = `${circumference}`;
+        progressCircle.style.strokeDashoffset = `${circumference}`;
+
+        function updateCountdown() {
+          const minutes = Math.floor(timeLeft / 60);
+          const seconds = timeLeft % 60;
+          timeDisplay.textContent = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+          const offset = circumference - (timeLeft / totalTime) * circumference;
+          progressCircle.style.strokeDashoffset = offset;
+
+          if (timeLeft === 0) {
+            clearInterval(timer);
+            timeDisplay.textContent = "00:00";
+            showPopup(); // Call the showPopup function here
+          }
+
+          timeLeft--;
+        }
+
+        const timer = setInterval(updateCountdown, 1000);
+      
+        // Function to display the popup
+        function showPopup() {
+          const overlay = document.createElement('div');
+          overlay.classList.add('overlay');
+          document.body.appendChild(overlay);
+
+          const popup = document.createElement('div');
+          popup.classList.add('popup');
+          popup.innerHTML = `<h2>Votre temps est terminé !</h2>
+                            <p>Vous avez gagné 2 crédits <span class="star">⭐</span><span class="star">⭐</span></p>`;
+
+          // Ajouter un bouton pour fermer la popup
+          const closeButton = document.createElement('button');
+          closeButton.textContent = 'Quitter';
+
+          // Effet confettis + redirection
+          closeButton.addEventListener('click', () => {
+            // Lancer les confettis
+            confetti({
+              particleCount: 100,
+              spread: 70,
+              origin: { y: 0.6 }
+            });
+
+            // Supprimer la popup après un court délai
+            setTimeout(() => {
+              document.body.removeChild(popup);
+              document.body.removeChild(overlay);
+
+              // Redirection vers un autre site (ajuste l'URL)
+              window.location.href = 'connexion.html';
+            }, 1000); // Délai d'1 seconde avant la redirection
+          });
+
+          popup.appendChild(closeButton);
+
+          // Animation de l'apparition du texte lettre par lettre
+          let index = 0;
+          const text = popup.querySelector('h2').textContent;
+          popup.querySelector('h2').textContent = '';
+          const interval = setInterval(() => {
+            popup.querySelector('h2').textContent += text[index];
+            index++;
+            if (index === text.length) {
+              clearInterval(interval);
+            }
+          }, 100);
+
+          document.body.appendChild(popup);
+        }
+
+        // Styles pour la popup
+        const style = document.createElement('style');
+        style.textContent = `
+          .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            text-align: center;
+            border-radius: 10px;
+            width: 300px;
+          }
+
+          .popup button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+          }
+
+          .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+          }
+        `;
+        document.head.appendChild(style);
+      </script>
+
+    </div>
+    <!-- sidebar ends -->
+
+    <!-- feed starts -->
+    <div class="feed" id="feed">
+      <div class="feed__header">
+        <h2>Twistos</h2>
+      </div>
+
+      <!-- post starts -->
+      <div class="post">
+        <div class="post__avatar">
+          <img
+            src="images/1630554713127.jpg"
+            alt=""
+          />
+        </div>
+
+        <div class="post__body">
+          <div class="post__header">
+            <div class="post__headerText">
+              <h3>
+                EPSI Paris
+                <span class="post__headerSpecial"
+                  ><span class="material-icons post__badge"> verified </span>@EpsiParis</span
+                >
+              </h3>
+            </div>
+            <div class="post__headerDescription">
+              <p>Lancement du workshop des I2 2024-2025 !!</p>
+            </div>
+          </div>
+          <img
+            src="images/campus-hep-paris-2-1200x900.jpg"
+            alt=""
+          />
+          <div class="post__footer">
+            <span class="material-icons"> repeat </span>
+            <span class="material-icons"> favorite_border </span>
+            <span class="material-icons"> publish </span>
+          </div>
+        </div>
+      </div>
+      <!-- post ends -->
+
+      <!-- post starts -->
+      <div class="post">
+        <div class="post__avatar">
+          <img
+            src="images/images.jpg"
+            alt=""
+          />
+        </div>
+
+        <div class="post__body">
+          <div class="post__header">
+            <div class="post__headerText">
+              <h3>
+                Hank Ballard
+                <span class="post__headerSpecial"
+                  ><span class="material-icons post__badge"> verified </span>@Hank Ballard</span
+                >
+              </h3>
+            </div>
+            <div class="post__headerDescription">
+              <p>Le retour du twist dans les soirées étudiantes prévue pour 2025</p>
+            </div>
+          </div>
+          <img
+            src="images/chubby-dance.gif"
+            alt=""
+          />
+          <div class="post__footer">
+            <span class="material-icons"> repeat </span>
+            <span class="material-icons"> favorite_border </span>
+            <span class="material-icons"> publish </span>
+          </div>
+        </div>
+      </div>
+      <!-- post ends -->
+
+      <!-- post starts -->
+      <div class="post">
+        <div class="post__avatar">
+          <img
+                  src="images/ab6761610000e5ebe80d1ffb81aa6503ad41c574.jpg"
+                  alt=""
+          />
+        </div>
+
+        <div class="post__body">
+          <div class="post__header">
+            <div class="post__headerText">
+              <h3>
+                League of Legend
+                <span class="post__headerSpecial"
+                ><span class="material-icons post__badge"> verified </span>@OTP</span
+                >
+              </h3>
+            </div>
+            <div class="post__headerDescription">
+              <p>la compétition des world de League of Legend continue,<br>
+                l'équipe T1 va-t-elle garder son titre de l'année dernière ?</p>
+            </div>
+          </div>
+          <img
+                  src="images/eff5c8efe5d4d81770dc85ae3914faea3593cbf73f18b19382f8777686.jpg"
+                  alt=""
+          />
+          <div class="post__footer">
+            <span class="material-icons"> repeat </span>
+            <span class="material-icons"> favorite_border </span>
+            <span class="material-icons"> publish </span>
+          </div>
+        </div>
+      </div>
+      <!-- post ends -->
+
+      <!-- post starts -->
+      <div class="post">
+        <div class="post__avatar">
+          <img
+                  src="images/nyan.jpg"
+                  alt=""
+          />
+        </div>
+
+        <div class="post__body">
+          <div class="post__header">
+            <div class="post__headerText">
+              <h3>
+                Nyan Cat
+                <span class="post__headerSpecial"
+                ><span class="material-icons post__badge"> verified </span>@nyancat</span
+                >
+              </h3>
+            </div>
+            <div class="post__headerDescription">
+              <p>L'essor de l'IA dans les meme drole.</p>
+            </div>
+          </div>
+          <img
+                  src="images/image_processing20210414-1239-79n4hy.gif"
+                  alt=""
+          />
+          <div class="post__footer">
+            <span class="material-icons"> repeat </span>
+            <span class="material-icons"> favorite_border </span>
+            <span class="material-icons"> publish </span>
+          </div>
+        </div>
+      </div>
+      <!-- post ends -->
+      <!-- post starts -->
+      <div class="post">
+        <div class="post__avatar">
+          <img
+                  src="images/KTM-Logo.svg.png"
+                  alt=""
+                  id="img"
+          />
+        </div>
+
+        <div class="post__body">
+          <div class="post__header">
+            <div class="post__headerText">
+              <h3>
+                KTM
+                <span class="post__headerSpecial"
+                ><span class="material-icons post__badge"> verified </span>@ktm</span
+                >
+              </h3>
+            </div>
+            <div class="post__headerDescription">
+              <p>La KTM 1390 SUPER DUKE R EVO
+                <br>
+                représente le summum de l’évolution.</p>
+            </div>
+          </div>
+          <img
+                  src="images/unnamed.jpg"
+                  alt=""
+          />
+          <div class="post__footer">
+            <span class="material-icons"> repeat </span>
+            <span class="material-icons"> favorite_border </span>
+            <span class="material-icons"> publish </span>
+          </div>
+        </div>
+      </div>
+      <!-- post ends -->
+    </div>
+    <!-- feed ends -->
+
+    <!-- widgets starts -->
+    <div class="widgets">
+      <div class="widgets__input">
+        <span class="material-icons widgets__searchIcon"> search </span>
+        <input type="text" placeholder="Search Twistos" />
+      </div>
+
+      <div class="widgets__widgetContainer">
+        <h2>Vous etes harcelé ? </h2>
+          <h2> Le contenu que vous trouver est inapproprié pour vous ou vos enfants ?</h2>
+        <blockquote class="twitter-tweet">
+          <br>
+          <p>
+            Nous vous invitons à rester sur notre page Twistos, nous vous garantissons un contenu sain et adapté à tous les âges.
+          </p>
+          <br>
+          <p>Pour en savoir plus sur notre solution twistos, cliquez sur le lien ci-dessous.</p>
+          <br>
+          <a href="https://twistos-h0tetfs.gamma.site/" class="twitter-button">Pour plus d'informations<i class="fa-light fa-caret-right"></i></a>
+        </blockquote>
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      </div>
+      <div class="widgets__widgetContainer">
+        <h2> SENSIBILISATION </h2>
+        <h2> Les réseaux sociaux sont un danger !! </h2>
+        <blockquote class="twitter-tweet">
+          <br>
+          <p>
+            Les reseaux sociaux sont un outil de communication et de partage, mais ils peuvent aussi être un danger.
+          </p>
+          <br>
+          <p>
+            il existe des activités malveillantes :
+            escroqueries, harcèlement, usurpation d'identité, chantages, vol de données personnelles, cyberharcèlement, desinformations, diffamation, etc.
+          </p>
+          <br>
+          <h2>
+            Des chiffres inquiétants :
+          </h2>
+          <br>
+          <p>
+            63% des jeunes de - de 13 ans sont sur les réseaux sociaux.
+          </p>
+          <br>
+          <p>
+              3h à 5h par jour sont passées sur les réseaux sociaux par les 16-25 ans.
+          </p>
+          <br>
+          <p>
+              1 jeune sur 5 a déjà été victime de cyberharcèlement.
+          </p>
+        </blockquote>
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      </div>
+    </div>
+    <!-- widgets ends -->
+  </body>
+</html>
