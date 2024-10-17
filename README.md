@@ -19,3 +19,4 @@ Twistos
 - pip install openai
 - pip install flask
 - pip install pandas
+- pip install tweepy
